@@ -2,17 +2,16 @@ services:
   - type: web
     name: german-learning-platform
     env: python
-    region: oregon  # اختر أقرب منطقة للمستخدمين
+    region: oregon  # Choose the region closest to your users
     buildCommand: |
-      pip install -r requirements_prod.txt
+      pip install -r requirements.txt
       python manage.py collectstatic --noinput
     startCommand: |
       python manage.py migrate --noinput
       gunicorn --worker-tmp-dir /dev/shm \
                --workers 4 \
-               --worker-class gthread \
                --threads 2 \
-               --bind 0.0.0.0:10000 \
+               --bind 0.0.0.0:$PORT \
                german_learning_platform.wsgi:application
     envVars:
       - key: PYTHON_VERSION
@@ -33,7 +32,6 @@ services:
         fromDatabase:
           name: german_learning_db
           property: connectionString
-      # Add these additional environment variables
       - key: DJANGO_SETTINGS_MODULE
         value: "german_learning_platform.settings"
       - key: PYTHONPATH
@@ -47,6 +45,3 @@ databases:
     databaseName: german_learning
     user: german_learning_user
     plan: free
-    envVars:
-      - key: POSTGRES_PASSWORD
-        generateValue: true
