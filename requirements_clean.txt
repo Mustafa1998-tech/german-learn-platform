@@ -1,0 +1,19 @@
+# Core
+Django==4.2.10
+Pillow==10.1.0
+
+# Production
+whitenoise==6.6.0
+gunicorn==21.2.0
+psycopg2-binary==2.9.9
+
+# Configuration
+dj-database-url==2.1.0
+python-decouple==3.8
+
+# Forms
+crispy-bootstrap5==2023.10
+django-crispy-forms==2.1
+
+# Monitoring
+sentry-sdk==1.39.1
