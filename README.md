@@ -4,6 +4,10 @@ A comprehensive web application for learning German, featuring lessons from A1 t
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
+## Screenshot
+
+![Application Screenshot](images/screenshot.png)
+
 ## Features
 
 - **Structured Learning Path**: Progress from A1 (beginner) to C2 (proficiency) levels
@@ -33,7 +37,7 @@ A comprehensive web application for learning German, featuring lessons from A1 t
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/german-learning-platform.git
+   git clone https://github.com/Mustafa1998-tech/german-learn-platform
    cd german-learning-platform
    ```
 
