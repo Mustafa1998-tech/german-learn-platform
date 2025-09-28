@@ -2,7 +2,7 @@ services:
   - type: web
     name: german-learning-platform
     env: python
-    region: oregon  # Choose the region closest to your users
+    region: oregon  # اختر أقرب منطقة للمستخدمين
     buildCommand: |
       pip install -r requirements_prod.txt
       python manage.py collectstatic --noinput
@@ -33,13 +33,20 @@ services:
         fromDatabase:
           name: german_learning_db
           property: connectionString
+      # Add these additional environment variables
+      - key: DJANGO_SETTINGS_MODULE
+        value: "german_learning_platform.settings"
+      - key: PYTHONPATH
+        value: "/app"
     healthCheckPath: /admin/
     plan: free
     autoDeploy: true
 
-    # Database (PostgreSQL)
-    databases:
-      - name: german_learning_db
-        databaseName: german_learning
-        user: german_learning_user
-        plan: free
+databases:
+  - name: german_learning_db
+    databaseName: german_learning
+    user: german_learning_user
+    plan: free
+    envVars:
+      - key: POSTGRES_PASSWORD
+        generateValue: true
