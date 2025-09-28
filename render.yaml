@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: german-learning-platform
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn german_learning_platform.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DISABLE_COLLECTSTATIC
+        value: 1
+    plan: free
+
+    # Database (PostgreSQL)
+    databases:
+      - name: german_learning_db
+        databaseName: german_learning
+        user: german_learning_user
+        plan: free
+
+    # Auto-deploy from GitHub
+    repo: https://github.com/yourusername/german-learning-platform
+    branch: main
+    autoDeploy: true

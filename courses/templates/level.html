@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ level.name }} - {% trans "Deutsch Lernen" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Level Header -->
+    <div class="text-center mb-5">
+        <div class="d-flex justify-content-start mb-3">
+            <a href="{% url 'courses:home' %}" class="btn btn-outline-secondary btn-sm" data-translate="Zurück zur Startseite">
+                <i class="fas fa-arrow-right me-1"></i> <span data-translate="Zurück zur Startseite">Zurück zur Startseite</span>
+            </a>
+        </div>
+        
+        <div class="level-header p-4 rounded-3 mb-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+            <h1 class="display-5 fw-bold mb-3">
+                <span class="badge bg-primary me-3" style="font-size: 1.5rem;">{{ level.name }}</span>
+                {{ level.get_name_display }}
+            </h1>
+            <p class="lead mb-0">{{ level.description|default:"" }}</p>
+        </div>
+        
+        <div class="progress mb-4" style="height: 6px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+
+    <!-- Lessons List -->
+    <div class="row g-4">
+        {% for lesson in lessons %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm lesson-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted small mb-3">
+                    {% if lesson.vocab %}
+                        {{ lesson.get_vocab_list|length }} <span data-translate="Vokabeln">Vokabeln</span>
+                    {% else %}
+                        <span data-translate="Keine Vokabeln verfügbar">Keine Vokabeln verfügbar</span>
+                    {% endif %}
+                </p>    </p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if lesson.youtube_url %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger me-2">
+                                <i class="fab fa-youtube me-1"></i> <span data-translate="Video">Video</span>
+                            </span>
+                            {% endif %}
+                            <span class="text-muted small">
+                                <i class="far fa-clock me-1"></i> {{ lesson.content|wordcount|add:50|divisibleby:100|default:5 }} <span data-translate="Minuten">min</span>
+                            </span>
+                        </div>
+                            <a href="{% url 'courses:lesson_detail' lesson.slug %}" class="btn btn-sm btn-outline-primary">
+                                <span data-translate="Lernen">Lernen</span> <i class="fas fa-arrow-left ms-1"></i>
+                            </a>
+                    </div>
+                </div>
+                
+                {% if user.is_authenticated %}
+                <div class="card-footer bg-transparent border-top-0 pt-0">
+{{ ... }}
+            </div>
+        </div>
+        {% endif %}
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-book-open fa-4x text-muted mb-3"></i>
+                    <h3 data-translate="Keine Lektionen verfügbar">Keine Lektionen verfügbar</h3>
+                    <p class="text-muted" data-translate="Für dieses Niveau sind noch keine Lektionen verfügbar.">
+                        Für dieses Niveau sind noch keine Lektionen verfügbar.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+{{ ... }}
+            </div>
+            <div class="progress" style="height: 10px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                    <small class="text-muted">0 <span data-translate="von">von</span> {{ lessons.count }} <span data-translate="Lektionen abgeschlossen">Lektionen abgeschlossen</span></small>
+                    <small><a href="#" class="text-decoration-none" data-translate="Mehr anzeigen">Mehr anzeigen</a></small>
+            </div>
+        </div>
+    </div>
+    
+{{ ... }}
+    {% if next_level %}
+    <div class="text-center mt-5 pt-5">
+        <h4 class="mb-3" data-translate="Bereit für das nächste Niveau?">Bereit für das nächste Niveau?</h4>
+        <a href="{% url 'courses:level_detail' next_level.slug %}" class="btn btn-primary btn-lg">
+            <span data-translate="Weiter zu">Weiter zu</span> {{ next_level.name }} <i class="fas fa-arrow-left ms-2"></i>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .lesson-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .lesson-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05) !important;
+    }
+    .level-header {
+        position: relative;
+        overflow: hidden;
+    }
+    .level-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #000000, #DD0000, #FFCC00);
+    }
+</style>
+{% endblock %}

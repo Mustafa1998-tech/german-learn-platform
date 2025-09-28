@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Quiz Submission</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function submitQuiz() {
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const quizData = {
+                answers: {
+                    '1': 'a',
+                    '2': 'b',
+                    '3': 'c'
+                }
+            };
+
+            fetch('/api/quiz/test-lesson/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(quizData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('result').innerHTML = 
+                    `<div class="alert alert-success">
+                        Quiz submitted successfully! Score: ${data.score}%
+                    </div>`;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 
+                    `<div class="alert alert-danger">
+                        Error: ${error.message}
+                    </div>`;
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Test Quiz Submission</h1>
+        <button onclick="submitQuiz()" class="btn btn-primary">Submit Test Quiz</button>
+        <div id="result" class="mt-3"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1401 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }} - {{ lesson.level.name }} - Deutsch Lernen{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Lesson Navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'courses:home' %}">Startseite</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'courses:level_detail' lesson.level.slug %}">{{ lesson.level.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ lesson.title|truncatechars:30 }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Lesson Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-primary mb-2">{{ lesson.level.name }}</span>
+                            <h1 class="h2 mb-3">{{ lesson.title }}</h1>
+                            <div class="d-flex align-items-center text-muted small mb-3">
+                                <span class="me-3"><i class="far fa-clock me-1"></i> {{ lesson.content|wordcount|add:50|divisibleby:100|default:5 }} min Lesezeit</span>
+                                <span><i class="far fa-calendar-alt me-1"></i> Aktualisiert am {{ lesson.updated_at|date:"d.m.Y" }}</span>
+                            </div>
+                        </div>
+                        {% if user_result %}
+                        <div class="text-end">
+                            <div class="badge bg-success bg-opacity-10 text-success p-2">
+                                <i class="fas fa-check-circle me-1"></i> Abgeschlossen
+                            </div>
+                            <div class="text-muted small">Punktzahl: {{ user_result.score }}%</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Audio Player -->
+                    <div class="bg-light p-3 rounded-3 mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Hören Sie die Lektion</h6>
+                </div>
+                <audio id="lessonAudio" src="{% if lesson.audio_file %}{{ lesson.audio_file.url }}{% endif %}" type="audio/mpeg">
+                    Ihr Browser unterstützt das Audio-Element nicht.
+                </audio>
+            </div>
+
+            <!-- Lesson Content -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">Lektionstext</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="toggleTranslation">
+                            <i class="fas fa-exchange-alt me-1"></i> Übersetzung umschalten
+                        </button>
+                    </div>
+                    
+                    <div class="lesson-content mb-4">
+                        <div class="german-text">
+                            {{ lesson.content|linebreaks }}
+                        </div>
+                        {% if lesson.translation %}
+                        <div class="translation-text d-none mt-3 p-3 bg-light rounded">
+                            <h6 class="text-muted mb-3">Übersetzung:</h6>
+                            {{ lesson.translation|linebreaks }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5 class="mb-3"><i class="fas fa-video me-2"></i> Lernvideo</h5>
+                        {% if lesson.youtube_url %}
+                            <div class="ratio ratio-16x9">
+                                <iframe src="{{ lesson.youtube_url }}" 
+                                        title="{{ lesson.title }}" 
+                                        allowfullscreen
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                </iframe>
+                            </div>
+                        {% else %}
+                            <div class="text-center p-4 bg-light rounded-3">
+                                <p class="text-muted mb-3">Kein spezifisches Video für diese Lektion vorhanden.</p>
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="https://www.youtube.com/embed/G2XAlZGFNwU" 
+                                            title="Deutsch lernen A1 - Lektion 1: Begrüßungen und Vorstellungen"
+                                            allowfullscreen
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                    </iframe>
+                                </div>
+                                <p class="mt-3 mb-0"><small class="text-muted">Beispielvideo: Deutsch lernen A1 - Lektion 1</small></p>
+                            </div>
+                        {% endif %}
+                </div>
+            </div>
+
+            <!-- German Learning Path -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4 text-center">
+                        <i class="fas fa-map-signs me-2"></i> المسار التعليمي للغة الألمانية
+                    </h4>
+                    <p class="text-center text-muted mb-4">اتبع الدروس بالترتيب لتطوير مستواك من المبتدئ إلى المتقدم</p>
+                    
+                    <!-- A1 Level -->
+                    <div class="level-card mb-4">
+                        <div class="level-header bg-primary text-white p-3 rounded-top">
+                            <h5 class="mb-0">
+                                <i class="fas fa-flag me-2"></i> المستوى A1 - مبتدئ
+                                <span class="badge bg-light text-primary ms-2">3 دروس</span>
+                            </h5>
+                        </div>
+                        <div class="level-body border p-3 rounded-bottom">
+                            <div class="lesson-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-2">1</span>
+                                    <h6 class="mb-0">أساسيات الألمانية A1</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary me-2 watch-video" 
+                                            data-video-id="mNX1wpIQ4Uk"
+                                            data-self-hosted="/media/videos/german_a1_lesson1.mp4">
+                                        <i class="fas fa-play me-1"></i> شاهد الدرس
+                                    </button>
+                                    <small class="text-muted">25 دقيقة</small>
+                                </div>
+                            </div>
+                            
+                            <div class="lesson-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-2">2</span>
+                                    <h6 class="mb-0">المحادثات اليومية A1</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-play me-1"></i> Easy German A1
+                                    </button>
+                                    <small class="text-muted">قائمة تشغيل متكاملة</small>
+                                </div>
+                            </div>
+                            
+                            <div class="lesson-item">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-2">3</span>
+                                    <h6 class="mb-0">قواعد A1 والمفردات الأساسية</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-book me-1"></i> دروس المبتدئين
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- A2 Level -->
+                    <div class="level-card mb-4">
+                        <div class="level-header bg-success text-white p-3 rounded-top">
+                            <h5 class="mb-0">
+                                <i class="fas fa-arrow-up me-2"></i> المستوى A2 - أساسي متقدم
+                                <span class="badge bg-light text-success ms-2">2 درس</span>
+                            </h5>
+                        </div>
+                        <div class="level-body border p-3 rounded-bottom">
+                            <div class="lesson-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-success me-2">4</span>
+                                    <h6 class="mb-0">التوسع في المحادثات A2</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-success me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-play me-1"></i> Easy German A2
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="lesson-item">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-success me-2">5</span>
+                                    <h6 class="mb-0">قواعد A2 وممارسة الاستماع</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-success me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-headphones me-1"></i> نماذج امتحانات A2
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- B1 Level -->
+                    <div class="level-card mb-4">
+                        <div class="level-header bg-info text-white p-3 rounded-top">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-line me-2"></i> المستوى B1 - متوسط
+                                <span class="badge bg-light text-info ms-2">3 دروس</span>
+                            </h5>
+                        </div>
+                        <div class="level-body border p-3 rounded-bottom">
+                            <!-- B1 Lessons 6-8 -->
+                            <div class="lesson-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-info me-2">6</span>
+                                    <h6 class="mb-0">المحادثة اليومية B1</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-info me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-comments me-1"></i> Easy German B1
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="lesson-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-info me-2">7</span>
+                                    <h6 class="mb-0">القراءة والفهم B1</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-info me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-book-reader me-1"></i> نماذج امتحانات B1
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="lesson-item">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-info me-2">8</span>
+                                    <h6 class="mb-0">قواعد متقدمة ومفردات B1</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-info me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-graduation-cap me-1"></i> دروس المستوى المتوسط
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- B2 Level -->
+                    <div class="level-card mb-4">
+                        <div class="level-header bg-warning text-dark p-3 rounded-top">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar me-2"></i> المستوى B2 - متوسط متقدم
+                                <span class="badge bg-light text-warning ms-2">2 درس</span>
+                            </h5>
+                        </div>
+                        <div class="level-body border p-3 rounded-bottom">
+                            <div class="lesson-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-warning text-dark me-2">9</span>
+                                    <h6 class="mb-0">المحادثة والنقاش B2</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-warning me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-comment-dots me-1"></i> Easy German B2
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="lesson-item">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-warning text-dark me-2">10</span>
+                                    <h6 class="mb-0">الفهم السماعي B2</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-warning me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-headphones me-1"></i> نماذج امتحانات B2
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- C1 Level -->
+                    <div class="level-card mb-4">
+                        <div class="level-header bg-danger text-white p-3 rounded-top">
+                            <h5 class="mb-0">
+                                <i class="fas fa-star me-2"></i> المستوى C1 - متقدم
+                                <span class="badge bg-light text-danger ms-2">2 درس</span>
+                            </h5>
+                        </div>
+                        <div class="level-body border p-3 rounded-bottom">
+                            <div class="lesson-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-danger me-2">11</span>
+                                    <h6 class="mb-0">القراءة والفهم C1</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-danger me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-book-open me-1"></i> نماذج امتحانات C1
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="lesson-item">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-danger me-2">12</span>
+                                    <h6 class="mb-0">التعبير الشفهي C1</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-danger me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-comment-alt me-1"></i> دروس المستوى المتقدم
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- C2 Level -->
+                    <div class="level-card">
+                        <div class="level-header bg-dark text-white p-3 rounded-top">
+                            <h5 class="mb-0">
+                                <i class="fas fa-trophy me-2"></i> المستوى C2 - متقن
+                                <span class="badge bg-light text-dark ms-2">2 درس</span>
+                            </h5>
+                        </div>
+                        <div class="level-body border p-3 rounded-bottom">
+                            <div class="lesson-item mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-dark me-2">13</span>
+                                    <h6 class="mb-0">التعبير الأكاديمي C2</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-dark me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-university me-1"></i> نماذج امتحانات C2
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="lesson-item">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-dark me-2">14</span>
+                                    <h6 class="mb-0">النقاش والتحليل C2</h6>
+                                </div>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-dark me-2 watch-video" data-video-id="G2XAlZGFNwU">
+                                        <i class="fas fa-comments me-1"></i> مناقشات متقدمة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Resources -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-graduation-cap me-2"></i> موارد إضافية لتعلم الألمانية
+                    </h5>
+                    
+                    <div class="row g-4">
+                        <!-- Playlist 1 -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLfshN8ksxiVq-XBo-dBYnW7v7PBur93_e" 
+                                            title="Learn German with Bilal - A1 to C2"
+                                            allowfullscreen
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                    </iframe>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">دروس شاملة من A1 إلى C2</h6>
+                                    <p class="card-text small text-muted">قناة Learn German with Bilal</p>
+                                    <a href="https://www.youtube.com/playlist?list=PLfshN8ksxiVq-XBo-dBYnW7v7PBur93_e" target="_blank" class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="fab fa-youtube me-1"></i> مشاهدة القائمة
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Playlist 2 -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLqwdUqFjcF1QOJ6VqutCfxUXUyCMqCUYk" 
+                                            title="Goethe Zertifikat A1-C2"
+                                            allowfullscreen
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                    </iframe>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">نماذج امتحانات جوته A1-C2</h6>
+                                    <p class="card-text small text-muted">قناة Goethe-Institut</p>
+                                    <a href="https://www.youtube.com/playlist?list=PLqwdUqFjcF1QOJ6VqutCfxUXUyCMqCUYk" target="_blank" class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="fab fa-youtube me-1"></i> مشاهدة القائمة
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video 1 -->
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <div class="ratio ratio-16x9 h-100">
+                                            <iframe src="https://www.youtube.com/embed/mNX1wpIQ4Uk" 
+                                                    title="Learn German A1 in 25 Minutes"
+                                                    allowfullscreen
+                                                    frameborder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                            </iframe>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h6 class="card-title">تعلم الألمانية A1 في 25 دقيقة</h6>
+                                            <p class="card-text small">دورة مكثفة للمبتدئين تغطي الأساسيات مثل النطق والعبارات الشائعة والقواعد.</p>
+                                            <a href="https://www.youtube.com/watch?v=mNX1wpIQ4Uk" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fab fa-youtube me-1"></i> مشاهدة الفيديو
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vocabulary -->
+            {% if lesson.vocab %}
+            <div class="card border-0 shadow-sm mb-4" id="vocabulary">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-book me-2"></i> Wichtige Vokabeln
+                        <button class="btn btn-sm btn-outline-primary float-end" id="copyVocab">
+                            <i class="far fa-copy me-1"></i> Kopieren
+                        </button>
+                    </h5>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="vocabTable">
+                            <thead>
+                                <tr>
+                                    <th>Deutsch</th>
+                                    <th>Übersetzung</th>
+                                    <th>Beispielsatz</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vocab in lesson.get_vocab_list %}
+                                <tr>
+                                    <td><strong>{{ vocab }}</strong></td>
+                                    <td>Übersetzung</td>
+                                    <td class="text-muted small">Beispielsatz mit {{ vocab }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Exercises -->
+            {% if exercises %}
+            <div class="card border-0 shadow-sm mb-4" id="exercises">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-tasks me-2"></i> Übungen
+                        <span class="badge bg-primary ms-2">{{ exercises|length }}</span>
+                    </h5>
+                    
+                    <form id="quizForm" data-lesson-id="{{ lesson.id }}">
+                        {% csrf_token %}
+                        <div id="exercisesContainer">
+                            {% for exercise in exercises %}
+                            <div class="exercise mb-4 p-3 border rounded" data-exercise-id="{{ exercise.id }}">
+                                <h6 class="mb-3">
+                                    <span class="badge bg-light text-dark me-2">Frage {{ forloop.counter }}</span>
+                                    {{ exercise.question }}
+                                </h6>
+                                
+                                {% if exercise.type == 'mcq' %}
+                                    {% for option in exercise.get_options %}
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" 
+                                               name="exercise_{{ exercise.id }}" 
+                                               id="option{{ exercise.id }}_{{ forloop.counter }}" 
+                                               value="{{ forloop.counter0 }}">
+                                        <label class="form-check-label" for="option{{ exercise.id }}_{{ forloop.counter }}">
+                                            {{ option }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                    
+                                {% elif exercise.type == 'tf' %}
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check" name="exercise_{{ exercise.id }}" 
+                                               id="true_{{ exercise.id }}" value="true">
+                                        <label class="btn btn-outline-success" for="true_{{ exercise.id }}">
+                                            <i class="fas fa-check me-1"></i> Richtig
+                                        </label>
+                                        
+                                        <input type="radio" class="btn-check" name="exercise_{{ exercise.id }}" 
+                                               id="false_{{ exercise.id }}" value="false">
+                                        <label class="btn btn-outline-danger" for="false_{{ exercise.id }}">
+                                            <i class="fas fa-times me-1"></i> Falsch
+                                        </label>
+                                    </div>
+                                    
+                                {% elif exercise.type == 'fill' %}
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Antwort</span>
+                                        <input type="text" class="form-control" 
+                                               name="exercise_{{ exercise.id }}" 
+                                               placeholder="Geben Sie Ihre Antwort ein">
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="feedback mt-2 d-none"></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-md-2" id="resetQuiz">
+                                <i class="fas fa-redo me-1"></i> Zurücksetzen
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="submitQuiz">
+                                <i class="fas fa-paper-plane me-1"></i> Antworten überprüfen
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Navigation -->
+            <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                {% if prev_lesson %}
+                <a href="{% url 'courses:lesson_detail' prev_lesson.slug %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-right me-1"></i> Vorherige Lektion
+                </a>
+                {% else %}
+                <span></span>
+                {% endif %}
+                
+                {% if next_lesson %}
+                <a href="{% url 'courses:lesson_detail' next_lesson.slug %}" class="btn btn-primary">
+                    Nächste Lektion <i class="fas fa-arrow-left ms-1"></i>
+                </a>
+                {% else %}
+                <a href="{% url 'courses:level_detail' lesson.level.slug %}" class="btn btn-outline-secondary">
+                    Zurück zur Übersicht <i class="fas fa-list ms-1"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Lesson Progress -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">Ihr Fortschritt</h6>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {% if user_result %}{{ user_result.score }}{% else %}0{% endif %}%;" 
+                             aria-valuenow="{% if user_result %}{{ user_result.score }}{% else %}0{% endif %}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">
+                            {% if user_result %}{{ user_result.score }}{% else %}0{% endif %}% abgeschlossen
+                        </small>
+                        <small>
+                            {% if user_result %}
+                                <i class="fas fa-check-circle text-success me-1"></i> Abgeschlossen
+                            {% else %}
+                                <i class="far fa-circle text-muted me-1"></i> Nicht begonnen
+                            {% endif %}
+                        </small>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <div class="d-grid gap-2">
+                        {% if not user.is_authenticated %}
+                        <a href="{% url 'admin:login' %}?next={{ request.path }}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt me-1"></i> Anmelden zum Speichern
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'courses:level_detail' lesson.level.slug %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-1"></i> Alle Lektionen anzeigen
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lesson Navigation -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Inhaltsverzeichnis</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#lesson-content" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        Lektionstext
+                        <i class="fas fa-chevron-left small text-muted"></i>
+                    </a>
+                    {% if lesson.vocab %}
+                    <a href="#vocabulary" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        Vokabeln
+                        <span class="badge bg-primary rounded-pill">{{ lesson.get_vocab_list|length }}</span>
+                    </a>
+                    {% endif %}
+                    {% if exercises %}
+                    <a href="#exercises" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        Übungen
+                        <span class="badge bg-primary rounded-pill">{{ exercises|length }}</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Related Lessons -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Weitere Lektionen</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for related_lesson in lesson.level.lessons.all|slice:":5" %}
+                        {% if related_lesson.id != lesson.id %}
+                        <a href="{% url 'courses:lesson_detail' related_lesson.slug %}" 
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            {{ related_lesson.title }}
+                            <i class="fas fa-chevron-left small text-muted"></i>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- Quiz Result Modal -->
+<div class="modal fade" id="quizResultModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quiz-Ergebnis</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fas fa-trophy fa-4x text-warning mb-3"></i>
+                    <h3>Herzlichen Glückwunsch!</h3>
+                    <p class="lead">Sie haben <span id="quizScore">0</span>% der Fragen richtig beantwortet.</p>
+                    
+                    <div class="progress mb-4" style="height: 20px;">
+                        <div class="progress-bar bg-success" id="scoreBar" role="progressbar" 
+                             style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    
+                    <div id="perfectScore" class="d-none">
+                        <div class="alert alert-success">
+                            <i class="fas fa-star me-2"></i> Perfekt! Sie haben alle Fragen richtig beantwortet!
+                        </div>
+                    </div>
+                    
+                    <div id="goodScore" class="d-none">
+                        <div class="alert alert-info">
+                            <i class="fas fa-thumbs-up me-2"></i> Gute Arbeit! Sie sind auf dem richtigen Weg!
+                        </div>
+                    </div>
+                    
+                    <div id="averageScore" class="d-none">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-book me-2"></i> Üben Sie weiter! Sie können das besser!
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-redo me-1"></i> Nochmal versuchen
+                    </button>
+                    <a href="{% if next_lesson %}{% url 'courses:lesson_detail' next_lesson.slug %}{% else %}{% url 'courses:level_detail' lesson.level.slug %}{% endif %}" 
+                       class="btn btn-primary">
+                        {% if next_lesson %}
+                            Nächste Lektion <i class="fas fa-arrow-right ms-1"></i>
+                        {% else %}
+                            Zurück zur Übersicht
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Video Player Modal -->
+    <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="videoModalLabel">مشاهدة الدرس</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- YouTube Player (default) -->
+                    <div id="youtubePlayer" class="video-container">
+                        <div class="ratio ratio-16x9">
+                            <iframe id="lessonVideo" 
+                                    src="" 
+                                    title="درس تعليمي" 
+                                    allowfullscreen
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                            </iframe>
+                        </div>
+                    </div>
+                    
+                    <!-- Self-hosted Video Player (hidden by default) -->
+                    <div id="selfHostedPlayer" class="video-container d-none">
+                        <div class="ratio ratio-16x9">
+                            <video id="selfHostedVideo" class="w-100" controls>
+                                <source src="" type="video/mp4">
+                                متصفحك لا يدعم تشغيل الفيديو
+                            </video>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Source Toggle (only shown if both sources are available) -->
+                    <div id="videoSourceToggle" class="p-3 border-top d-none">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="videoSourceSwitch">
+                            <label class="form-check-label" for="videoSourceSwitch">
+                                <span id="currentSource">يوتيوب</span>
+                                <small class="text-muted d-block">استخدام النسخة المحملة</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Toggle Translation
+const toggleTranslationBtn = document.getElementById('toggleTranslation');
+const translationText = document.querySelector('.translation-text');
+
+if (toggleTranslationBtn && translationText) {
+    toggleTranslationBtn.addEventListener('click', function() {
+        translationText.classList.toggle('d-none');
+    });
+}
+
+// Video Player Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize video modal
+    const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+    let currentVideoId = '';
+    let hasSelfHosted = false;
+
+    // Function to reset video players
+    function resetVideoPlayers() {
+        // Pause and reset YouTube player
+        const iframe = document.getElementById('lessonVideo');
+        if (iframe) {
+            const src = iframe.src;
+            iframe.src = src.replace(/[&?]autoplay=1/, '');
+        }
+        
+        // Pause and reset self-hosted video
+        const video = document.getElementById('selfHostedVideo');
+        if (video) {
+            video.pause();
+            video.currentTime = 0;
+        }
+    }
+
+    // Handle video play buttons
+    document.querySelectorAll('.watch-video').forEach(button => {
+        button.addEventListener('click', function() {
+            // Get video data
+            const videoId = this.getAttribute('data-video-id');
+            const selfHostedUrl = this.getAttribute('data-self-hosted');
+            currentVideoId = videoId;
+            hasSelfHosted = !!selfHostedUrl;
+            
+            // Reset and show appropriate player
+            resetVideoPlayers();
+            
+            // Set YouTube source if available
+            if (videoId) {
+                const youtubeUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                const iframe = document.getElementById('lessonVideo');
+                if (iframe) {
+                    iframe.src = youtubeUrl;
+                }
+            }
+            
+            // Set self-hosted source if available
+            if (selfHostedUrl) {
+                const videoElement = document.getElementById('selfHostedVideo');
+                if (videoElement) {
+                    videoElement.src = selfHostedUrl;
+                    videoElement.load();
+                }
+            }
+            
+            // Show/hide source toggle based on availability
+            const sourceToggle = document.getElementById('videoSourceToggle');
+            if (videoId && hasSelfHosted) {
+                sourceToggle.classList.remove('d-none');
+            } else {
+                sourceToggle.classList.add('d-none');
+            }
+            
+            videoModal.show();
+        });
+    });
+
+    // Toggle between YouTube and self-hosted video
+    const sourceSwitch = document.getElementById('videoSourceSwitch');
+    if (sourceSwitch) {
+        sourceSwitch.addEventListener('change', function() {
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const selfHostedPlayer = document.getElementById('selfHostedPlayer');
+            const currentSource = document.getElementById('currentSource');
+            
+            if (this.checked) {
+                // Switch to self-hosted
+                if (youtubePlayer) youtubePlayer.classList.add('d-none');
+                if (selfHostedPlayer) selfHostedPlayer.classList.remove('d-none');
+                if (currentSource) currentSource.textContent = 'محمل مسبقًا';
+                
+                // Play the self-hosted video
+                const video = document.getElementById('selfHostedVideo');
+                if (video) {
+                    video.play().catch(e => console.error('Error playing video:', e));
+                }
+            } else {
+                // Switch to YouTube
+                if (youtubePlayer) youtubePlayer.classList.remove('d-none');
+                if (selfHostedPlayer) selfHostedPlayer.classList.add('d-none');
+                if (currentSource) currentSource.textContent = 'يوتيوب';
+            }
+        });
+    }
+
+    // Close modal and reset players when hidden
+    const videoModalElement = document.getElementById('videoModal');
+    if (videoModalElement) {
+        videoModalElement.addEventListener('hidden.bs.modal', function () {
+            resetVideoPlayers();
+        });
+    }
+});
+
+// Audio Player
+const audio = document.getElementById('lessonAudio');
+const playButton = document.getElementById('playAudio');
+
+if (audio && playButton) {
+    playButton.addEventListener('click', function() {
+        if (audio.paused) {
+            audio.play();
+            playButton.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            audio.pause();
+            playButton.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    });
+
+    audio.addEventListener('ended', function() {
+        playButton.innerHTML = '<i class="fas fa-play"></i>';
+    });
+}
+
+// Quiz Submission
+const quizForm = document.getElementById('quizForm');
+if (quizForm) {
+    quizForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Collect form data
+        const formData = new FormData(this);
+        const lessonSlug = this.getAttribute('data-lesson-slug');
+        
+        // Show loading state
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Wird geprüft...';
+        
+        // Send quiz data to server
+        fetch(`/api/quiz/${lessonSlug}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(formData).toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Process results
+            updateQuizResults(data);
+            showQuizResultModal(data.score);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+        })
+        .finally(() => {
+            // Reset button state
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        });
+    });
+}
+
+// Update quiz results
+function updateQuizResults(result) {
+    // Update each question with feedback
+    result.results.forEach(questionResult => {
+        const questionElement = document.getElementById(`question-${questionResult.question_id}`);
+        if (questionElement) {
+            // Remove previous feedback
+            const existingFeedback = questionElement.querySelector('.feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
+            // Add new feedback
+            const feedback = document.createElement('div');
+            feedback.className = `feedback mt-2 ${questionResult.is_correct ? 'text-success' : 'text-danger'}`;
+            
+            if (questionResult.is_correct) {
+                feedback.innerHTML = '<i class="fas fa-check-circle me-1"></i> Richtig!';
+            } else {
+                feedback.innerHTML = `
+                    <i class="fas fa-times-circle me-1"></i> Falsch!
+                    <div class="correct-answer mt-1">
+                        <small>Richtige Antwort: ${questionResult.correct_answer}</small>
+                    </div>
+                `;
+            }
+            
+            questionElement.appendChild(feedback);
+        }
+    });
+}
+
+// Show quiz result modal
+function showQuizResultModal(score) {
+    const resultModal = new bootstrap.Modal(document.getElementById('quizResultModal'));
+    const scoreElement = document.getElementById('quizScore');
+    const progressBar = document.getElementById('scoreProgress');
+    
+    if (scoreElement) scoreElement.textContent = `${score}%`;
+    if (progressBar) {
+        progressBar.style.width = `${score}%`;
+        progressBar.setAttribute('aria-valuenow', score);
+    }
+    
+    // Show appropriate message based on score
+    const resultMessage = document.getElementById('resultMessage');
+    if (resultMessage) {
+        if (score >= 80) {
+            resultMessage.className = 'text-success';
+            resultMessage.innerHTML = '<i class="fas fa-trophy me-2"></i> Ausgezeichnet! Sie haben den Test bestanden!';
+        } else if (score >= 50) {
+            resultMessage.className = 'text-info';
+            resultMessage.innerHTML = '<i class="fas fa-thumbs-up me-2"></i> Gut gemacht! Üben Sie weiter!';
+        } else {
+            resultMessage.className = 'text-warning';
+            resultMessage.innerHTML = '<i class="fas fa-book me-2"></i> Fast geschafft! Wiederholen Sie die Lektion und versuchen Sie es erneut.';
+        }
+    }
+    
+    resultModal.show();
+}
+</script>
+document.getElementById('videoSourceSwitch')?.addEventListener('change', function() {
+    const youtubePlayer = document.getElementById('youtubePlayer');
+    const selfHostedPlayer = document.getElementById('selfHostedPlayer');
+    const currentSource = document.getElementById('currentSource');
+    
+    if (this.checked) {
+        // Switch to self-hosted
+        youtubePlayer.classList.add('d-none');
+        selfHostedPlayer.classList.remove('d-none');
+        currentSource.textContent = 'محمل مسبقًا';
+        
+        // Play the self-hosted video
+        const video = document.getElementById('selfHostedVideo');
+        video.play().catch(e => console.error('Error playing video:', e));
+    } else {
+        // Switch to YouTube
+        youtubePlayer.classList.remove('d-none');
+        selfHostedPlayer.classList.add('d-none');
+        currentSource.textContent = 'يوتيوب';
+    }
+});
+
+// Close modal and reset players
+document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+    // Pause and reset YouTube player
+    const iframe = document.getElementById('lessonVideo');
+    if (iframe) {
+        const src = iframe.src;
+        if (src.includes('autoplay=1')) {
+            iframe.src = src.replace('?autoplay=1', '');
+        }
+    }
+    
+    // Pause and reset self-hosted video
+    const video = document.getElementById('selfHostedVideo');
+    if (video) {
+        video.pause();
+        video.currentTime = 0;
+    }
+    
+    // Reset the toggle
+    const sourceSwitch = document.getElementById('videoSourceSwitch');
+    if (sourceSwitch.checked) {
+        sourceSwitch.checked = false;
+        const event = new Event('change');
+        sourceSwitch.dispatchEvent(event);
+    }
+});
+
+function resetVideoPlayers() {
+    // Reset YouTube player
+    const youtubePlayer = document.getElementById('youtubePlayer');
+    youtubePlayer.classList.remove('d-none');
+    
+    // Reset self-hosted player
+    const selfHostedPlayer = document.getElementById('selfHostedPlayer');
+    selfHostedPlayer.classList.add('d-none');
+    
+    // Reset source toggle
+    const sourceSwitch = document.getElementById('videoSourceSwitch');
+    sourceSwitch.checked = false;
+    document.getElementById('currentSource').textContent = 'يوتيوب';
+}
+
+// Audio Player
+const audio = document.getElementById('lessonAudio');
+const playButton = document.getElementById('playAudio');
+
+if (audio && playButton) {
+    playButton.addEventListener('click', function() {
+        if (audio.paused) {
+            audio.play();
+            audioPlayer.play();
+            playButton.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            audioPlayer.pause();
+            playButton.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    });
+    
+    audioPlayer.addEventListener('ended', function() {
+        playButton.innerHTML = '<i class="fas fa-play"></i>';
+    });
+}
+
+// Copy Vocabulary
+const copyVocabBtn = document.getElementById('copyVocab');
+
+if (copyVocabBtn) {
+    copyVocabBtn.addEventListener('click', function() {
+        const vocabTable = document.getElementById('vocabTable');
+        const range = document.createRange();
+        range.selectNode(vocabTable);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        
+        // Show feedback
+        const originalText = copyVocabBtn.innerHTML;
+        copyVocabBtn.innerHTML = '<i class="fas fa-check me-1"></i> Kopiert!';
+        copyVocabBtn.classList.remove('btn-outline-primary');
+        copyVocabBtn.classList.add('btn-success');
+        
+        setTimeout(function() {
+            copyVocabBtn.innerHTML = originalText;
+            copyVocabBtn.classList.remove('btn-success');
+            copyVocabBtn.classList.add('btn-outline-primary');
+        }, 2000);
+    });
+}
+
+// Quiz Form Handling
+const quizForm = document.getElementById('quizForm');
+const submitBtn = document.getElementById('submitQuiz');
+const resetBtn = document.getElementById('resetQuiz');
+
+if (quizForm && submitBtn && resetBtn) {
+    // Submit form via AJAX
+    quizForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Wird überprüft...';
+        
+        // Collect form data
+        const formData = new FormData(quizForm);
+        const data = { answers: {} };
+        
+        formData.forEach((value, key) => {
+            if (key.startsWith('exercise_')) {
+                const exerciseId = key.replace('exercise_', '');
+                data.answers[exerciseId] = value;
+            }
+        });
+        
+        // Send data to server
+        fetch(`/api/quiz/{{ lesson.slug }}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // Update UI with results
+                updateQuizResults(result);
+                
+                // Show modal with final score
+                showQuizResultModal(result.score);
+            } else {
+                alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+        })
+        .finally(() => {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Antworten überprüfen';
+        });
+    });
+    
+    // Reset quiz
+    resetBtn.addEventListener('click', function() {
+        // Reset all inputs
+        const inputs = quizForm.querySelectorAll('input[type="radio"], input[type="text"]');
+        inputs.forEach(input => {
+            if (input.type === 'radio') {
+                input.checked = false;
+            } else if (input.type === 'text') {
+                input.value = '';
+            }
+        });
+        
+        // Reset feedback
+        const feedbacks = quizForm.querySelectorAll('.feedback');
+        feedbacks.forEach(feedback => {
+            feedback.classList.add('d-none');
+            feedback.innerHTML = '';
+        });
+    });
+}
+
+function updateQuizResults(result) {
+    // Update each exercise with feedback
+    Object.entries(result.results).forEach(([exerciseId, exerciseResult]) => {
+        const exerciseEl = document.querySelector(`[data-exercise-id="${exerciseId}"]`);
+        if (!exerciseEl) return;
+        
+        const feedbackEl = exerciseEl.querySelector('.feedback');
+        if (!feedbackEl) return;
+        
+        // Show feedback
+        feedbackEl.classList.remove('d-none');
+        
+        if (exerciseResult.is_correct) {
+            feedbackEl.innerHTML = `
+                <div class="alert alert-success p-2 mb-0">
+                    <i class="fas fa-check-circle me-1"></i> Richtig!
+                </div>
+            `;
+        } else {
+            feedbackEl.innerHTML = `
+                <div class="alert alert-danger p-2 mb-0">
+                    <i class="fas fa-times-circle me-1"></i> Falsch! 
+                    ${exerciseResult.explanation ? '<div class="mt-1 small">' + exerciseResult.explanation + '</div>' : ''}
+                </div>
+            `;
+        }
+    });
+}
+
+function showQuizResultModal(score) {
+    const resultModal = new bootstrap.Modal(document.getElementById('quizResultModal'));
+    const scoreElement = document.getElementById('quizScore');
+    const progressBar = document.getElementById('scoreProgress');
+    
+    if (scoreElement) scoreElement.textContent = `${score}%`;
+    if (progressBar) {
+        progressBar.style.width = `${score}%`;
+        progressBar.setAttribute('aria-valuenow', score);
+    }
+    
+    // Show appropriate message based on score
+    const resultMessage = document.getElementById('resultMessage');
+    if (resultMessage) {
+        if (score >= 80) {
+            resultMessage.className = 'text-success';
+            resultMessage.innerHTML = '<i class="fas fa-trophy me-2"></i> Ausgezeichnet! Sie haben den Test bestanden!';
+        } else if (score >= 50) {
+            resultMessage.className = 'text-info';
+            resultMessage.innerHTML = '<i class="fas fa-thumbs-up me-2"></i> Gut gemacht! Üben Sie weiter!';
+        } else {
+            resultMessage.className = 'text-warning';
+            resultMessage.innerHTML = '<i class="fas fa-book me-2"></i> Fast geschafft! Wiederholen Sie die Lektion und versuchen Sie es erneut.';
+        }
+    }
+    
+    resultModal.show();
+}
+    const averageScore = document.getElementById('averageScore');
+    
+    // Update score display
+    scoreElement.textContent = score;
+    scoreBar.style.width = `${score}%`;
+    scoreBar.setAttribute('aria-valuenow', score);
+    
+    // Show appropriate message based on score
+    perfectScore.classList.add('d-none');
+    goodScore.classList.add('d-none');
+    averageScore.classList.add('d-none');
+    
+    if (score >= 90) {
+        perfectScore.classList.remove('d-none');
+    } else if (score >= 70) {
+        goodScore.classList.remove('d-none');
+    } else {
+        averageScore.classList.remove('d-none');
+    }
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('quizResultModal'));
+    modal.show();
+}
+
+// Video Player Modal
+const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+let currentVideoId = '';
+let hasSelfHosted = false;
+
+
+// Toggle between YouTube and self-hosted video
+document.getElementById('videoSourceSwitch').addEventListener('change', function() {
+    const youtubePlayer = document.getElementById('youtubePlayer');
+    const selfHostedPlayer = document.getElementById('selfHostedPlayer');
+    const currentSource = document.getElementById('currentSource');
+    
+    if (this.checked) {
+        // Switch to self-hosted
+        youtubePlayer.classList.add('d-none');
+        selfHostedPlayer.classList.remove('d-none');
+        currentSource.textContent = 'محمل مسبقًا';
+        
+        // Play the self-hosted video
+        const video = document.getElementById('selfHostedVideo');
+        video.play().catch(e => console.error('Error playing video:', e));
+    } else {
+        // Switch to YouTube
+        youtubePlayer.classList.remove('d-none');
+        selfHostedPlayer.classList.add('d-none');
+        currentSource.textContent = 'يوتيوب';
+    }
+});
+
+// Close modal and reset players
+document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+    // Pause and reset YouTube player
+    const iframe = document.getElementById('lessonVideo');
+    if (iframe) {
+        const src = iframe.src;
+        if (src.includes('autoplay=1')) {
+            iframe.src = src.replace('?autoplay=1', '');
+        }
+    }
+    
+    // Pause and reset self-hosted video
+    const video = document.getElementById('selfHostedVideo');
+    if (video) {
+        video.pause();
+        video.currentTime = 0;
+    }
+    
+    // Reset the toggle
+    const sourceSwitch = document.getElementById('videoSourceSwitch');
+    if (sourceSwitch.checked) {
+        sourceSwitch.checked = false;
+        const event = new Event('change');
+        sourceSwitch.dispatchEvent(event);
+    }
+});
+
+</script>
+
+{% block extra_css %}
+{% endblock %}
+
+<style>
+    .exercise {
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+    }
+    
+    .exercise:hover {
+        background-color: #f1f3f5;
+        border-color: #dee2e6 !important;
+    }
+    
+    .btn-check:checked + .btn-outline-success {
+        background-color: #198754;
+        color: white;
+    }
+    
+    .btn-check:checked + .btn-outline-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .translation-text {
+        border-right: 3px solid #0d6efd;
+    }
+    
+    #playAudio {
+        transition: all 0.3s ease;
+    }
+    
+    #playAudio:hover {
+        transform: scale(1.1);
+    }
+    
+    .progress {
+        overflow: visible;
+    }
+    
+    .progress-bar {
+        position: relative;
+        transition: width 1s ease-in-out;
+    }
+    
+    .progress-bar::after {
+        content: attr(aria-valuenow) "%";
+        position: absolute;
+        right: -25px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+{% endblock %}

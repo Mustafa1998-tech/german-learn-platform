@@ -1,0 +1,434 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn German online with interactive lessons from A1 to C2 level">
+    <title>{% block title %}Deutsch Lernen - Master German Language{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+    <link rel="alternate" hreflang="de" href="https://deutsch-lernen.com/de/" />
+    <link rel="alternate" hreflang="en" href="https://deutsch-lernen.com/en/" />
+    <link rel="alternate" hreflang="ar" href="https://deutsch-lernen.com/ar/" />
+    <meta name="theme-color" content="#1A237E">
+    
+    <!-- Bootstrap 5 RTL CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- German Theme -->
+    <link rel="stylesheet" href="{% static 'css/german_theme.css' %}">
+    <!-- RTL CSS -->
+    <link rel="stylesheet" href="{% static 'css/rtl.css' %}>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% if request.LANGUAGE_CODE == 'ar' %}rtl{% endif %}">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'courses:home' %}" data-translate="Deutsch Lernen">
+                <img src="{% static 'img/german_flag.svg' %}" alt="German Flag" style="width: 32px; height: auto; margin-left: 10px;">
+                Deutsch Lernen
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" 
+                           href="{% url 'courses:home' %}" 
+                           data-translate="Startseite">
+                            Startseite
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="levelsDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false" data-translate="Niveaus">
+                            Niveaus
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="levelsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'courses:level_detail' 'a1' %}">A1 - Anfänger</a></li>
+                            <li><a class="dropdown-item" href="{% url 'courses:level_detail' 'a2' %}">A2 - Grundlegende Kenntnisse</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'courses:level_detail' 'b1' %}">B1 - Fortgeschrittene Sprachverwendung</a></li>
+                            <li><a class="dropdown-item" href="{% url 'courses:level_detail' 'b2' %}">B2 - Selbstständige Sprachverwendung</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'courses:level_detail' 'c1' %}">C1 - Fachkundige Sprachkenntnisse</a></li>
+                            <li><a class="dropdown-item" href="{% url 'courses:level_detail' 'c2' %}">C2 - Annähernd muttersprachliche Kenntnisse</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-translate="Über uns">Über uns</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-translate="Kontakt">Kontakt</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center" 
+                                type="button" id="languageDropdown" data-bs-toggle="dropdown" 
+                                aria-expanded="false">
+                            <i class="fas fa-globe me-1"></i>
+                            <span class="d-none d-sm-inline">Sprache</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center {% if LANGUAGE_CODE == 'de' %}active{% endif %}" 
+                                   href="#" data-lang="de">
+                                    <span class="fi fi-de me-2"></span>
+                                    Deutsch
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center {% if LANGUAGE_CODE == 'en' %}active{% endif %}" 
+                                   href="#" data-lang="en">
+                                    <span class="fi fi-gb me-2"></span>
+                                    English
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center {% if LANGUAGE_CODE == 'ar' %}active{% endif %}" 
+                                   href="#" data-lang="ar">
+                                    <span class="fi fi-sa me-2"></span>
+                                    العربية
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <a href="#" class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center" 
+                               role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>
+                                <span class="d-none d-sm-inline">{{ user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="#" data-translate="Mein Konto">Mein Konto</a></li>
+                                <li><a class="dropdown-item" href="#" data-translate="Meine Fortschritte">Meine Fortschritte</a></li>
+                                <li><a class="dropdown-item" href="#" data-translate="Einstellungen">Einstellungen</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" data-translate="Abmelden">Abmelden</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="#" class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex align-items-center" 
+                           data-translate="Anmelden">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            <span>Anmelden</span>
+                        </a>
+                        <a href="#" class="btn btn-primary btn-sm d-none d-sm-inline-flex align-items-center" 
+                           data-translate="Registrieren">
+                            <i class="fas fa-user-plus me-1"></i>
+                            <span>Registrieren</span>
+                        </a>
+                        <a href="#" class="btn btn-outline-primary btn-sm d-sm-none" 
+                           data-translate="Anmelden">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase">Deutsch Lernen</h5>
+                    <p class="mt-3" data-translate="Ihre Plattform zum Deutschlernen von A1 bis C2. Lernen Sie Deutsch einfach, effektiv und mit Spaß!">
+                        Ihre Plattform zum Deutschlernen von A1 bis C2. Lernen Sie Deutsch einfach, effektiv und mit Spaß!
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 col-lg-2">
+                    <h5 data-translate="Niveaus">Niveaus</h5>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'courses:level_detail' 'a1' %}" data-translate="Deutsch A1">A1 - Anfänger</a></li>
+                        <li><a href="{% url 'courses:level_detail' 'a2' %}" data-translate="Deutsch A2">A2 - Grundlagen</a></li>
+                        <li><a href="{% url 'courses:level_detail' 'b1' %}" data-translate="Deutsch B1">B1 - Mittelstufe</a></li>
+                        <li><a href="{% url 'courses:level_detail' 'b2' %}" data-translate="Deutsch B2">B2 - Fortgeschritten</a></li>
+                        <li><a href="{% url 'courses:level_detail' 'c1' %}" data-translate="Deutsch C1">C1 - Kompetenz</a></li>
+                        <li><a href="{% url 'courses:level_detail' 'c2' %}" data-translate="Deutsch C2">C2 - Meisterschaft</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4 col-lg-2">
+                    <h5 data-translate="Ressourcen">Ressourcen</h5>
+                    <ul class="footer-links">
+                        <li><a href="#" data-translate="Grammatik">Grammatik</a></li>
+                        <li><a href="#" data-translate="Vokabeln">Vokabeln</a></li>
+                        <li><a href="#" data-translate="Aussprache">Aussprache</a></li>
+                        <li><a href="#" data-translate="Kultur">Kultur</a></li>
+                        <li><a href="#" data-translate="Blog">Blog</a></li>
+                        <li><a href="#" data-translate="FAQ">Häufige Fragen</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4 col-lg-2">
+                    <h5 data-translate="Unternehmen">Unternehmen</h5>
+                    <ul class="footer-links">
+                        <li><a href="#" data-translate="Über uns">Über uns</a></li>
+                        <li><a href="#" data-translate="Team">Unser Team</a></li>
+                        <li><a href="#" data-translate="Karriere">Karriere</a></li>
+                        <li><a href="#" data-translate="Presse">Presse</a></li>
+                        <li><a href="#" data-translate="Partner werden">Partner werden</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-6 col-lg-2">
+                    <h5 data-translate="Rechtliches">Rechtliches</h5>
+                    <ul class="footer-links">
+                        <li><a href="#" data-translate="Nutzungsbedingungen">Nutzungsbedingungen</a></li>
+                        <li><a href="#" data-translate="Datenschutz">Datenschutz</a></li>
+                        <li><a href="#" data-translate="Impressum">Impressum</a></li>
+                        <li><a href="#" data-translate="Cookie-Richtlinie">Cookie-Richtlinie</a></li>
+                        <li><a href="#" data-translate="AGB">AGB</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <div class="mb-2 mb-md-0" data-translate="© 2023 Deutsch Lernen. Alle Rechte vorbehalten.">
+                        © 2023 Deutsch Lernen. Alle Rechte vorbehalten.
+                    </div>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white-50 text-decoration-none" data-translate="Nutzungsbedingungen">Nutzungsbedingungen</a>
+                        <a href="#" class="text-white-50 text-decoration-none" data-translate="Datenschutz">Datenschutz</a>
+                        <a href="#" class="text-white-50 text-decoration-none" data-translate="Impressum">Impressum</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/ScrollTrigger.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script>
+        // Initialize LazyLoad
+        const lazyLoadInstance = new LazyLoad({
+            elements_selector: ".lazy"
+        });
+        
+        // Initialize GSAP animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate elements with .fade-in class
+            gsap.utils.toArray('.fade-in').forEach((el, i) => {
+                gsap.from(el, {
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top 80%',
+                    },
+                    opacity: 0,
+                    y: 50,
+                    duration: 0.8,
+                    delay: i * 0.1,
+                    ease: 'power2.out'
+                });
+            });
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        gsap.to(window, {
+                            duration: 0.8,
+                            scrollTo: target,
+                            ease: 'power2.inOut'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+    // Translation dictionary
+    const translations = {
+        // Navigation
+        "Deutsch Lernen": { "en": "Learn German", "ar": "تعلم الألمانية" },
+        "Startseite": { "en": "Home", "ar": "الرئيسية" },
+        "Niveaus": { "en": "Levels", "ar": "المستويات" },
+        "Anmelden": { "en": "Login", "ar": "تسجيل الدخول" },
+        "Registrieren": { "en": "Register", "ar": "تسجيل" },
+        "Mein Konto": { "en": "My Account", "ar": "حسابي" },
+        
+        // Common UI Elements
+        "Keine Lektionen verfügbar": { "en": "No lessons available", "ar": "لا توجد دروس متاحة" },
+        "Vokabeln": { "en": "Vocabulary", "ar": "المفردات" },
+        "Lernen": { "en": "Learn", "ar": "تعلم" },
+        "Weiter": { "en": "Continue", "ar": "متابعة" },
+        "Zurück": { "en": "Back", "ar": "رجوع" },
+        "Lektion": { "en": "Lesson", "ar": "الدرس" },
+        
+        // Level Page
+        "Ihr Fortschritt": { "en": "Your Progress", "ar": "تقدمك" },
+        "abgeschlossen": { "en": "completed", "ar": "مكتمل" },
+        "Bereit für das nächste Niveau?": { "en": "Ready for the next level?", "ar": "هل أنت مستوي للمستوى التالي؟" },
+        "Keine Vokabeln verfügbar": { "en": "No vocabulary available", "ar": "لا توجد مفردات متاحة" },
+        "Video": { "en": "Video", "ar": "فيديو" },
+        
+        // Footer
+        "© 2023 Deutsch Lernen. Alle Rechte vorbehalten.": { 
+            "en": "© 2023 Learn German. All rights reserved.", 
+            "ar": "© 2023 تعلم الألمانية. جميع الحقوق محفوظة." 
+        }
+    };
+
+    // Function to apply translations
+    function applyTranslations(lang) {
+        document.documentElement.lang = lang;
+        
+        // Update text content for all translatable elements
+        document.querySelectorAll("[data-translate]").forEach(el => {
+            const key = el.getAttribute("data-translate");
+            if (translations[key] && translations[key][lang]) {
+                // Check if the element is an input/textarea/select
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                    el.value = translations[key][lang];
+                } else {
+                    el.textContent = translations[key][lang];
+                }
+            }
+        });
+        
+        // Update RTL for Arabic
+        if (lang === 'ar') {
+            document.documentElement.dir = 'rtl';
+            document.body.classList.add('rtl');
+            // Update the href lang attribute for SEO
+            document.querySelector('html').setAttribute('lang', 'ar');
+            document.querySelector('html').setAttribute('dir', 'rtl');
+        } else {
+            document.documentElement.dir = 'ltr';
+            document.body.classList.remove('rtl');
+            // Update the href lang attribute for SEO
+            document.querySelector('html').setAttribute('lang', lang);
+            document.querySelector('html').setAttribute('dir', 'ltr');
+        }
+        
+        // Update the language switcher
+        const languageSelect = document.getElementById('language-select');
+        if (languageSelect) {
+            languageSelect.value = lang;
+        }
+        
+        // Save language preference
+        localStorage.setItem('preferredLanguage', lang);
+        
+        // Dispatch event for any components that need to update
+        document.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: lang } }));
+    }
+
+    // Function to get browser language
+    function getBrowserLanguage() {
+        const browserLang = navigator.language || navigator.userLanguage;
+        // Return the first two characters (e.g., 'en' from 'en-US')
+        return browserLang.split('-')[0];
+    }
+    
+    // Function to check if language is supported
+    function isLanguageSupported(lang) {
+        return ['de', 'en', 'ar'].includes(lang);
+    }
+    
+    // Initialize with saved language, browser language, or default to German
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get saved language or browser language or default to German
+        let lang = localStorage.getItem('preferredLanguage');
+        
+        if (!lang) {
+            // If no saved preference, try to use browser language
+            const browserLang = getBrowserLanguage();
+            lang = isLanguageSupported(browserLang) ? browserLang : 'de';
+        }
+        
+        // Make sure the language is supported
+        if (!isLanguageSupported(lang)) {
+            lang = 'de'; // Default to German if unsupported language
+        }
+        
+        // Apply the language
+        const languageSelect = document.getElementById('language-select');
+        if (languageSelect) {
+            languageSelect.value = lang;
+            applyTranslations(lang);
+            
+            // Add event listener for language change
+            languageSelect.addEventListener('change', function() {
+                applyTranslations(this.value);
+                // Optional: You could also save the preference to the server here
+                // saveLanguagePreference(this.value);
+            });
+        }
+    });
+    
+    // Optional: Function to save language preference to the server
+    function saveLanguagePreference(lang) {
+        // This would typically be an AJAX call to your backend
+        // Example using fetch API:
+        /*
+        fetch('/api/save-language-preference/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ language: lang })
+        });
+        */
+    }
+    
+    // Helper function to get CSRF token (needed if you implement server-side saving)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+    <script src="{% static 'js/scripts.js' %}"></script>

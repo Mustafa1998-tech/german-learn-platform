@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Deutsch Lernen" %} - {% trans "Startseite" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center mb-5">
+        <h1 class="display-4 mb-4" data-translate="Willkommen bei Deutsch Lernen">Willkommen bei Deutsch Lernen</h1>
+        <p class="lead mb-4" data-translate="Lernen Sie Deutsch auf einfache und effektive Weise mit unserer interaktiven Plattform.">
+            Lernen Sie Deutsch auf einfache und effektive Weise mit unserer interaktiven Plattform.
+        </p>
+        <div class="mt-4">
+            <a href="#levels" class="btn btn-primary btn-lg me-3" data-translate="Jetzt starten">
+                <i class="fas fa-play me-2"></i>Jetzt starten
+            </a>
+            <a href="#how-it-works" class="btn btn-outline-primary btn-lg" data-translate="So funktioniert's">
+                <i class="fas fa-info-circle me-2"></i>So funktioniert's
+            </a>
+        </div>
+    </div>
+
+    <!-- Levels Section -->
+    <section id="levels" class="mb-5">
+        <h2 class="text-center mb-4" data-translate="Wählen Sie Ihr Niveau">Wählen Sie Ihr Niveau</h2>
+        <p class="text-center text-muted mb-5" data-translate="Egal ob Anfänger oder Fortgeschrittener - wir haben den passenden Kurs für Sie.">
+            Egal ob Anfänger oder Fortgeschrittener - wir haben den passenden Kurs für Sie.
+        </p>
+        
+        <div class="row g-4">
+            {% for level in levels %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm level-card">
+                    <div class="card-body text-center p-4">
+                        <div class="level-badge bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 80px; height: 80px; font-size: 1.75rem;">
+                            {{ level.name }}
+                        </div>
+                        <h3 class="h4 mb-3" data-translate="{{ level.get_name_display }}">
+                            {{ level.get_name_display }}
+                        </h3>
+                        <p class="text-muted mb-0" data-translate="{{ level.description|default:"Lernen Sie die Grundlagen der deutschen Sprache." }}">
+                            {{ level.description|default:"Lernen Sie die Grundlagen der deutschen Sprache." }}
+                        </p>
+                        <div class="mt-3">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-book me-1"></i> {{ level.lessons.count }} Lektionen
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 pb-4">
+                        <a href="{% url 'courses:level_detail' level.slug %}" class="btn btn-outline-primary w-100" data-translate="Los geht's">
+                            <i class="fas fa-arrow-circle-right me-1"></i> Los geht's
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- How it Works Section -->
+    <section id="how-it-works" class="py-5 bg-light rounded-3 mb-5">
+        <div class="container">
+            <h3 class="h5 mb-3" data-translate="So funktioniert's">So funktioniert's</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center p-3">
+                        <div class="bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 80px; height: 80px; font-size: 1.75rem;">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h4 class="mb-3" data-translate="1. Lektionen lesen">1. Lektionen lesen</h4>
+                        <p class="text-muted mb-0" data-translate="Lernen Sie mit unseren strukturierten Lektionen, die speziell für Ihr Niveau entwickelt wurden.">
+                            Lernen Sie mit unseren strukturierten Lektionen, die speziell für Ihr Niveau entwickelt wurden.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3">
+                        <div class="bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 80px; height: 80px; font-size: 1.75rem;">
+                            <i class="fas fa-headphones"></i>
+                        </div>
+                        <h4 class="mb-3" data-translate="2. Hören & Sprechen">2. Hören & Sprechen</h4>
+                        <p class="text-muted mb-0" data-translate="Verbessern Sie Ihre Aussprache mit unseren Hör- und Sprechübungen.">
+                            Verbessern Sie Ihre Aussprache mit unseren Hör- und Sprechübungen.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3">
+                        <div class="bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 80px; height: 80px; font-size: 1.75rem;">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h4 class="mb-3" data-translate="3. Üben & Testen">3. Üben & Testen</h4>
+                        <p class="text-muted mb-0" data-translate="Testen Sie Ihr Wissen mit unseren interaktiven Übungen und Tests.">
+                            Testen Sie Ihr Wissen mit unseren interaktiven Übungen und Tests.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Deutsch lernen" class="img-fluid rounded-3 shadow">
+            </div>
+            <div class="col-lg-6 ps-lg-5">
+                <h3 class="h5 mb-3" data-translate="Warum Deutsch lernen?">Warum Deutsch lernen?</h3>
+                <p class="lead" data-translate="Deutsch ist eine der wichtigsten Sprachen in Europa und der Welt.">
+                    Deutsch ist eine der wichtigsten Sprachen in Europa und der Welt.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Über 130 Millionen Muttersprachler weltweit</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Wichtige Sprache für Wirtschaft, Wissenschaft und Kultur</li>
+                    <li class="mb-2" data-translate="Deutsch ist die am häufigsten gesprochene Muttersprache in Europa">
+                        Deutsch ist die am häufigsten gesprochene Muttersprache in Europa
+                    </li>
+                    <li class="mb-2" data-translate="Verbessern Sie Ihre Karrierechancen">
+                        Verbessern Sie Ihre Karrierechancen
+                    </li>
+                    <li class="mb-2" data-translate="Bereisen Sie deutschsprachige Länder mit Selbstvertrauen">
+                        Bereisen Sie deutschsprachige Länder mit Selbstvertrauen
+                    </li>
+                    <li data-translate="Erweitern Sie Ihren kulturellen Horizont">
+                        Erweitern Sie Ihren kulturellen Horizont
+                    </li>
+                </ul>
+                <div class="mt-4">
+                    <a href="#levels" class="btn btn-primary me-2" data-translate="Jetzt anfangen">
+                        <i class="fas fa-play me-2"></i>Jetzt anfangen
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary">Mehr erfahren</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .level-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    .level-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+    }
+    .level-badge {
+        transition: all 0.3s ease;
+    }
+    .level-card:hover .level-badge {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
