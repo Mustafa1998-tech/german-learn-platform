@@ -1,10 +1,17 @@
 # Add these imports at the top
 import os
+import sys
 import dj_database_url
 from pathlib import Path
 from decouple import config, Csv
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
+
+# Sentry SDK is optional
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+except ImportError:
+    sentry_sdk = None
+    DjangoIntegration = None
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -86,11 +93,15 @@ if not DEBUG:
 EMAIL_BACKEND = config('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', 'noreply@example.com')
 
-# Sentry Configuration (if SENTRY_DSN is set)
-if config('SENTRY_DSN', default=''):
+# Sentry Configuration (if SENTRY_DSN is set and sentry_sdk is available)
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN and sentry_sdk is not None and DjangoIntegration is not None:
     sentry_sdk.init(
-        dsn=config('SENTRY_DSN'),
+        dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
         traces_sample_rate=1.0,
-        send_default_pii=True
+        send_default_pii=True,
+        environment='production' if not DEBUG else 'development'
     )
+elif SENTRY_DSN and (sentry_sdk is None or DjangoIntegration is None):
+    print('Warning: SENTRY_DSN is set but sentry_sdk is not installed.', file=sys.stderr)
