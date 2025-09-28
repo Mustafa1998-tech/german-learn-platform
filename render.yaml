@@ -2,11 +2,23 @@ services:
   - type: web
     name: german-learning-platform
     env: python
-    buildCommand: "pip install -r requirements_prod.txt && python manage.py collectstatic --noinput"
-    startCommand: "gunicorn --worker-tmp-dir /dev/shm german_learning_platform.wsgi:application"
+    region: oregon  # Choose the region closest to your users
+    buildCommand: |
+      pip install -r requirements_prod.txt
+      python manage.py collectstatic --noinput
+    startCommand: |
+      python manage.py migrate --noinput
+      gunicorn --worker-tmp-dir /dev/shm \
+               --workers 4 \
+               --worker-class gthread \
+               --threads 2 \
+               --bind 0.0.0.0:10000 \
+               german_learning_platform.wsgi:application
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.0
+        value: 3.10.0
+      - key: PYTHONUNBUFFERED
+        value: 1
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
@@ -21,6 +33,7 @@ services:
         fromDatabase:
           name: german_learning_db
           property: connectionString
+    healthCheckPath: /admin/
     plan: free
     autoDeploy: true
 
