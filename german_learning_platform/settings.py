@@ -16,6 +16,9 @@ except ImportError:
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Root URL configuration
+ROOT_URLCONF = 'german_learning_platform.urls'
+
 # Security settings
 DEBUG = config('DEBUG', default=False, cast=bool)
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-here-change-me-in-production')
@@ -54,6 +57,23 @@ DATABASES = {
         conn_max_age=600
     )
 }
+
+# Templates
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
